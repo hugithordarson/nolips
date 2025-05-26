@@ -1,17 +1,31 @@
-# WOLips
+# NoLips
 
-Went over the WOLips features a little, and here are some thoughts. I am explicitly not mentioning anything EOF related, D2W related, Ant build related etc. Everything old style and off-basics is off the menu. I'll probably address those later though, for explaining _why_ I consider them "off the menu".
+## Status
 
-Some of the stuff I _do_ mention is still stuff I don't think needs to be present, but I decided to address because some people might think it _needs_ to be present. An example of that are the WO-specific launch configurations, i.e. a separate method to run WO applications.
+I've been considering how to proceed with IDE-support for [ng-objects](https://www.fermentedshark.com/) projects. At first sight, it seems we have two options:
 
-So, what WOlips really does is:
+1. Add `ng` support to WOLips
+2. Write IDE support from scratch
+
+Now, I like Eclipse, but I'm very much aware that a majority of Java developers and young/new developers prefer IntelliJ or VS Code. This means creating an Eclipse-only plugin for a new framework makes little sense, and supporting all three IDEs would be ideal.
+
+## Isn't that a bit much?
+
+IT shouldn't have to be. My first though is that most logic could be in a common library shared by all three plugins, keeping IDE-specific logic to a minimum. The largest part of "IDE" support, as I currently envision it, is the component template editor, an editor that provides validation, autocompletes etc., pretty much the same things WOLips's template editor provides. Most of this can probably be implemented as an [LSP server](https://en.wikipedia.org/wiki/Language_Server_Protocol) that could then be referenced from each IDE-specific plugin.
+
+
+## Analysis of WOLips
+
+I've been starting out by going over the features of WOLips a little, gathering up what WOLips does, and which of it's features are actually _needed_, specifically for someone that only uses WO as a web framework, and uses maven as a build system (or rather; doesn't specifically support any build system at all). That means I'm not counting anything EOF related, D2W related, Ant build related etc. Everything old style and off-basics is off the menu. I'll might address each later, explaining _why_ I consider them "off the menu".
+
+So.
 
 
 ## 1. Creates a build during development
 
 WOLips does one thing that *might* be required. Whether it's *actually* required requires some investigation.
 
-As I mentioned yesterday, WOLips maintains a "fake bundle" in a "build" folder for the app to use during development to locate resources. The folder contains Info.plist (some configuration for WO), resources (bundle resources and component templates) and webserver resources. This "fake bundle" is set as the working directory for the running Java application.
+WOLips maintains a "fake bundle" in a "build" folder for the app to use during development to locate resources. The folder contains Info.plist (some configuration for WO), resources (bundle resources and component templates) and webserver resources. This "fake bundle" is set as the working directory for the running Java application.
 
 I thought this was redundant by now and merely an artifact from the Ant days, but had forgotten that I always mindlessly point WO to this directory as a working directory since my WO Apps throw an error on launch without it. This morning, I decided to investigate the error, and turns out it's not in WO but Project Wonder - and disabling the failing logic there actually results in an apparently fine WO app running with seemingly nothing missing and locating resources from the project itself. So - I think that with a fix in Wonder, the "build" could become unneccessary. I just haven't looked into if and how that fix can be done.
 
@@ -31,24 +45,27 @@ WOLips also creates the .api files used to specify the binding API of elements a
 
 ## 3. The WOLips server
 
-I didn't mention this yesterday, since I don't think many people use it. I use it though and recently fixed it up in WOLips to keep it working.
-
-This is really just a simple HTTP server that runs inside Eclipse, allowing you to invoke actions in Eclipse through URLs in some locations in an application's dev UI. The most common one is probably clicking a stack trace element on an exception page, which opens the corresponding Java file and navigates to the clicked line. Bears mentioning since it's actually quite useful/convenient and probably simple to implement in any IDE.
+A simple HTTP server that runs inside Eclipse, allowing you to invoke actions in Eclipse through URLs. The most common action is probably clicking a stack trace element on an exception page, which opens the corresponding Java file and navigates to the clicked line. Bears mentioning since it's actually quite useful/convenient and probably simple to implement in any IDE.
 
 
 ## 4. Creation of WO-specific "Launch configurations"
 
-Probably mostly redundant today. This was useful since it took care of generating a classpath, which was especially convenient for Ant projects. It's a little nice since it has a separate UI for setting WO-specific properties, and you can change the default properties for new applications. But if you're always running the same applications (which I think most current WO developers do) that becomes less important.
+Probably mostly redundant today. Was useful since it took care of generating a classpath, which was especially convenient for Ant projects. It's a little nice since it has a separate UI for setting WO-specific properties, and you can change the default properties for new applications. But if you're always running the same applications (which I think most current WO developers do) that becomes less important.
 
 I haven't used this functionality in years (stopped using it since it can generate a broken classpath for maven projects). I prefer to start my WO applications as plain Java applications, passing any arguments via program arguments/VM Arguments. So; might be a "nice to have" but not a neccessity.
+
+Note: This actually takes care of setting the working directory for the application as well, setting it to the WOLips build directory. This might not be required though, see #1.
 
 
 ## 5. The component template editor / Element API editor
 
 Now, this is the real doozy
 
-1. It knows that folders ending with ".wo" are "packages" that are essentially treated as single files when working with them. Double clicking a ".wo" folder will open a split editor with the .html at the top and the .wod at the bottom. Regarding this, not many people know that WO actually supports _not_ having a .wo folder, but you can also just have a single HTML-file as your component template, using inline tags for any dynamic elements. I vastly prefer this style, since I never write use .wod files - but this is still rarely used since WOLips doesn't really support single file templates.
+1. WO component template folders (folders ending with ".wo") get treated more or less as single files in the UI. Double clicking a ".wo" folder will open a split editor for both the contained .html and the .wod. Regarding this, not many people know that WO actually supports _not_ having a .wo folder, but you can also just have a single HTML-file as your component template, using inline tags for any dynamic elements. I vastly prefer this style, since I never write use .wod files - but this is still rarely used since WOLips doesn't really support single file templates.
 
 * Parsing WO templates, validation etc.
 * Autocompletion for element names (WOElement subclasses on the classpath), binding names (by parsing the .api XML files), valid keypaths for bindings (public fields and methods, matching the KVC conventions - or fixed values from the API) etc.
 * More stuff to come...
+* API editor
+* .woo editor (displaygroups)
+* Outline viewer
