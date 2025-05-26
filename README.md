@@ -11,12 +11,14 @@ Now, I like Eclipse, but I'm very much aware that a majority of Java developers 
 
 ## Isn't that a bit much?
 
-IT shouldn't have to be. My first though is that most logic could be in a common library shared by all three plugins, keeping IDE-specific logic to a minimum. The largest part of "IDE" support, as I currently envision it, is the component template editor, an editor that provides validation, autocompletes etc., pretty much the same things WOLips's template editor provides. Most of this can probably be implemented as an [LSP server](https://en.wikipedia.org/wiki/Language_Server_Protocol) that could then be referenced from each IDE-specific plugin.
+I don't think it has to be. My initial thoughts are that most logic could be in a common library shared by all three plugins, keeping IDE-specific logic in the plugins themselves to a minimum. The largest part of "IDE" support as I currently see it, is the component template editor. That is, an editor that provides validation, autocompletes etc., pretty much the same stuff WOLips's template editor provides. Most of this can probably be implemented as an [LSP server](https://en.wikipedia.org/wiki/Language_Server_Protocol) that could then be referenced from each IDE-specific plugin.
 
 
 ## Analysis of WOLips
 
-I've been starting out by going over the features of WOLips a little, gathering up what WOLips does, and which of it's features are actually _needed_, specifically for someone that only uses WO as a web framework, and uses maven as a build system (or rather; doesn't specifically support any build system at all). That means I'm not counting anything EOF related, D2W related, Ant build related etc. Everything old style and off-basics is off the menu. I'll might address each later, explaining _why_ I consider them "off the menu".
+I've been starting out by going over the features of WOLips a little, gathering up what WOLips does, and which of it's features are actually _needed_, specifically for someone that only uses WO as a web framework, and uses maven as a build system (or much rather; doesn't support or require any specific build system at all).
+
+This means I'm not counting anything EOF related, D2W related, Ant build related etc. Everything non-basic-WOF related is off the menu. I might address each of later, explaining _why_ I consider certain features to not be required.
 
 So.
 
