@@ -9,18 +9,18 @@ I like Eclipse, but a majority of Java developers and especially young/new devel
 
 Possibly not. Most logic could probably be in a common library shared by all three plugins, keeping IDE-specific logic to a minimum. The largest part of "IDE" support is probably the component template editor, i.e. an editor that provides validation, autocompletes, element API editing and other goodness in the spirit of the WOLips template editor.
 
-A lot of this should be implementable as an [LSP server](https://en.wikipedia.org/wiki/Language_Server_Protocol) that could be referenced from either IDE-specific plugins or other editors that support interfacing with an LSP server). The [Parsley template parser](https://github.com/undur/Parsley) (our refactoring of the WOOgnl parser, also used in `ng`) can probably serve as a starting point to provide APIs for the required template parsing and environment awareness.
+A lot of this should be implementable as an [LSP server](https://en.wikipedia.org/wiki/Language_Server_Protocol) that could be referenced from either IDE-specific plugins or other generic HTML editors that support interfacing with an LSP server. The [Parsley template parser](https://github.com/undur/Parsley) (our refactoring of the WOOgnl parser, also used in `ng`) can probably serve as a starting point to provide APIs for the required template parsing and environment awareness.
 
 
 ## Should an `ng` plugin support WO as well
 
-Whether that's sensible depends on the amount of work involved. If a common API could be specified for both WO and `ng` to provide template info to the LSP; what elements are available, how their APIs look etc. it could be doable. But this would require some work since to my knowledge, WO doesn't have any built in capabilities to provide this information. WOlips relies on Eclipse APIs to locate element classes (along with using tag shortcuts defined in and provided by WOLips itself), it has it's own APIs to look at element bindings etc.
+Whether that's sensible depends on the amount of work involved. If a common API could be specified for both WO and `ng` to provide template info to the LSP; what elements are available, how their APIs look etc. it could be doable. But this would require some work since to my knowledge, WO doesn't have any built in capabilities to provide this information. WOlips relies on Eclipse APIs and it's own internal tag registry to locate elements, has it's own APIs to look at element bindings etc.
 
 ## Analysis of WOLips
 
-However, to begin somewhere I've been going over WOLips's features, checking what it does and which of those features are actually required, specifically for someone that only uses WO as a web framework. We also assume the user is using maven as a build system, although preferably we don't want to require or support any specific build system at all.
+However, to begin somewhere I've been going over WOLips's features, checking what it does and which of those features are actually required, specifically for someone that only uses WO as a web framework. We also assume the user is using maven as a build system, although we really don't want to require or support any specific build system at all.
 
-This means I'm not counting anything EOF related, D2W related, Ant build related etc. Everything non-basic-WOF related is off the menu. I might address each of later, explaining _why_ I consider certain features to not be required.
+This means I'm not counting anything EOF related, D2W related, Ant build related etc. Everything non-basic-WOF related is off the menu. I might address each of these later, explaining _why_ I consider certain features to not be required.
 
 So.
 
