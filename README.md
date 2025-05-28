@@ -1,23 +1,24 @@
-# NoLips
-
-In the past few weeks I've been considering how to proceed with IDE-support for [ng-objects](https://www.fermentedshark.com/) projects. At first sight, it seems we have two options:
+This document is meant to gather thoughts about how to proceed with IDE-support for [ng-objects](https://www.fermentedshark.com/). The two options under consideration are:
 
 1. Add `ng` support to WOLips
-2. Write IDE support from scratch
+2. Write IDE support pretty much from scratch
 
-Now, I like Eclipse, but I'm very much aware that a majority of Java developers and young/new developers prefer IntelliJ or VS Code. This means creating an Eclipse-only plugin for a new framework makes little sense, but supporting all three IDEs would be ideal.
+I like Eclipse, but a majority of Java developers and especially young/new developers prefer IntelliJ or even VS Code. This means creating an Eclipse-only plugin (or extending/forking WOLips) makes little sense for a new framework, and supporting all three IDEs would be ideal.
 
 ## Isn't that a bit much?
 
-I don't think it has to be. My initial thoughts are that most logic could be in a common library shared by all three plugins, keeping IDE-specific logic to a minimum. The largest part of "IDE" support as I currently see it, is the component template editor. That is, an editor that provides validation, autocompletes etc., pretty much the same stuff WOLips's template editor provides. Most of this can probably be implemented as an [LSP server](https://en.wikipedia.org/wiki/Language_Server_Protocol) that could then be referenced from each IDE-specific plugin. The [Parsley template parser](https://github.com/undur/Parsley) (our refactoring of the WOOgnl parser, also used in `ng`) can serve as a foundation for work involving templates.
+Possibly not. Most logic could probably be in a common library shared by all three plugins, keeping IDE-specific logic to a minimum. The largest part of "IDE" support is probably the component template editor, i.e. an editor that provides validation, autocompletes, element API editing and other goodness in the spirit of the WOLips template editor.
+
+A lot of this should be implementable as an [LSP server](https://en.wikipedia.org/wiki/Language_Server_Protocol) that could be referenced from either IDE-specific plugins or other editors that support interfacing with an LSP server). The [Parsley template parser](https://github.com/undur/Parsley) (our refactoring of the WOOgnl parser, also used in `ng`) can probably serve as a starting point to provide APIs for the required template parsing and environment awareness.
+
 
 ## Should an `ng` plugin support WO as well
 
-Whether that's sensible depends on the amount of work involved. If a common API could be specified for both WO and `ng` to provide template info to the LSP; what elements are available, how their APIs look etc. it could be doable. But from my current understanding, this would require some work since WO doesn't seem to have any built in capability to do this, instead relying on Eclipse APIs to locate element classes (or using tag shortcuts defined in and provided by WOLips).
+Whether that's sensible depends on the amount of work involved. If a common API could be specified for both WO and `ng` to provide template info to the LSP; what elements are available, how their APIs look etc. it could be doable. But this would require some work since to my knowledge, WO doesn't have any built in capabilities to provide this information. WOlips relies on Eclipse APIs to locate element classes (along with using tag shortcuts defined in and provided by WOLips itself), it has it's own APIs to look at element bindings etc.
 
 ## Analysis of WOLips
 
-To begin somewhere, I've been going over WOLips's features, checking what it does and which of those features are actually required, specifically for someone that only uses WO as a web framework. We also assume the user is using maven as a build system - but preferably we don't want to require or support any specific build system at all.
+However, to begin somewhere I've been going over WOLips's features, checking what it does and which of those features are actually required, specifically for someone that only uses WO as a web framework. We also assume the user is using maven as a build system, although preferably we don't want to require or support any specific build system at all.
 
 This means I'm not counting anything EOF related, D2W related, Ant build related etc. Everything non-basic-WOF related is off the menu. I might address each of later, explaining _why_ I consider certain features to not be required.
 
@@ -52,7 +53,7 @@ A simple HTTP server that runs inside Eclipse, allowing you to invoke actions in
 
 # 2. Features possibly/probably not required
 
-## 1. Creates a build during development
+## 1. Maintaining a build during development
 
 WOLips does one thing that *might* be required. Whether it's *actually* required requires some investigation.
 
@@ -67,7 +68,7 @@ This is still a hassle though (and an unneccessary one IMHO) so a Wonder fix wou
 I'm probably going to investigate this further - and I'm switching to running my apps with the project itself as the working directory for now instead of the build folder (with the failing logic in ERXLoader/Wonder disabled) and see if I spot any potential problems.
 
 
-## 2. Creation of WO-specific "Launch configurations"
+## 2. WO-specific "Launch configurations"
 
 Probably mostly redundant today. Was useful since it took care of generating a classpath, which was especially convenient for Ant projects. It's a little nice since it has a separate UI for setting WO-specific properties, and you can change the default properties for new applications. But if you're always running the same applications (which I think most current WO developers do) that becomes less important.
 
